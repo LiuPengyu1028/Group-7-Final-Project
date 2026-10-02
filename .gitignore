@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.vite/
+.pytest_cache/
+.superpowers/
+__pycache__/
+*.py[cod]
+.python-deps/
+.venv/
+data/raw/*.csv
+data/raw/*.zip
+data/processed/*.tmp

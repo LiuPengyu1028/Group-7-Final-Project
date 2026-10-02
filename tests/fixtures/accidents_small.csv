@@ -1,0 +1,7 @@
+ID,Severity,Start_Time,State,City,Start_Lat,Start_Lng,Weather_Condition,Visibility(mi),Temperature(F),Humidity(%),Wind_Speed(mph),Precipitation(in),Sunrise_Sunset,Junction,Crossing,Traffic_Signal
+A-1,1,2022-01-03 05:30:00,CA,Oakland,37.80,-122.27,Clear,10,55,60,2,0,Night,False,False,True
+A-2,3,2022-01-03 06:30:00,CA,Oakland,37.81,-122.28,Rain,1,50,90,8,0.1,Day,True,False,False
+A-3,4,2022-01-04 13:00:00,NY,Albany,42.65,-73.75,Fog,3,40,95,5,0.2,Day,False,True,False
+A-4,2,2022-01-04 19:30:00,NY,Albany,42.66,-73.74,,0.5,38,96,4,0.3,Night,False,False,True
+A-5,5,2022-01-05 10:00:00,TX,Austin,30.27,-97.74,Thunderstorm,4,70,85,12,0.4,Day,False,False,False
+A-3,4,2022-01-04 13:00:00,NY,Albany,42.65,-73.75,Fog,3,40,95,5,0.2,Day,False,True,False
