@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 type EmptyStateProps = {
   title?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export function EmptyState({ title = "No records match these filters", children }: EmptyStateProps) {
