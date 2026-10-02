@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -137,7 +139,7 @@ def _load_source(path: Path) -> tuple[pd.DataFrame, dict[str, Any]]:
     invalid_severity = ~source["Severity"].isin(SEVERITIES)
     invalid_severity_rows = int(invalid_severity.sum())
     source = source.loc[~invalid_severity].copy()
-    source["Start_Time"] = pd.to_datetime(source["Start_Time"], errors="coerce")
+    source["Start_Time"] = pd.to_datetime(source["Start_Time"], errors="coerce", format="mixed")
     invalid_timestamp = source["Start_Time"].isna()
     invalid_timestamp_rows = int(invalid_timestamp.sum())
     source = source.loc[~invalid_timestamp].copy()
@@ -215,12 +217,10 @@ def prepare_data(input_path: Path, output_dir: Path) -> None:
     }
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
-    dashboard_path = output / "dashboard-data.json"
+    dashboard_path = output / "dashboard-data.bin"
     quality_path = output / "data-quality.json"
-    dashboard_path.write_text(
-        json.dumps(dashboard, ensure_ascii=False, separators=(",", ":")),
-        encoding="utf-8",
-    )
+    dashboard_bytes = json.dumps(dashboard, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    dashboard_path.write_bytes(gzip.compress(dashboard_bytes, compresslevel=9, mtime=0))
     quality_path.write_text(
         json.dumps(quality, ensure_ascii=False, indent=2),
         encoding="utf-8",
@@ -231,7 +231,7 @@ def prepare_data(input_path: Path, output_dir: Path) -> None:
         quality_path.unlink(missing_ok=True)
         raise ValueError(
             f"Processed assets are {size / (1024 * 1024):.2f} MB; the course demo limit is 5 MB. "
-            "Use a representative sample of at most 500,000 rows or reduce the aggregation grain."
+            "Reduce the aggregation grain or process fewer source rows."
         )
 
 
@@ -241,7 +241,11 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("data/processed"))
     arguments = parser.parse_args()
     prepare_data(arguments.input, arguments.output)
-    print(f"Wrote dashboard aggregates and quality summary to {arguments.output}")
+    public_data = Path("public/data")
+    public_data.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(arguments.output / "dashboard-data.bin", public_data / "dashboard-data.bin")
+    shutil.copy2(arguments.output / "data-quality.json", public_data / "data-quality.json")
+    print(f"Wrote dashboard aggregates to {public_data} and a local quality summary to {arguments.output}")
 
 
 if __name__ == "__main__":

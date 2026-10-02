@@ -12,4 +12,7 @@ __pycache__/
 .venv/
 data/raw/*.csv
 data/raw/*.zip
+data/processed/dashboard-data.bin
+data/processed/dashboard-data.json.gz
+data/processed/data-quality.json
 data/processed/*.tmp

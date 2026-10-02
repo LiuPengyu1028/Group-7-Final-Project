@@ -1,4 +1,5 @@
 import json
+import gzip
 from pathlib import Path
 
 import pandas as pd
@@ -67,7 +68,7 @@ def test_pipeline_deduplicates_and_excludes_invalid_severity(tmp_path: Path):
     fixture = Path(__file__).parent / "fixtures" / "accidents_small.csv"
     prepare_data(fixture, tmp_path)
 
-    dashboard = json.loads((tmp_path / "dashboard-data.json").read_text(encoding="utf-8"))
+    dashboard = json.loads(gzip.decompress((tmp_path / "dashboard-data.bin").read_bytes()).decode("utf-8"))
     quality = json.loads((tmp_path / "data-quality.json").read_text(encoding="utf-8"))
 
     assert sum(row["count"] for row in dashboard["overview"]) == 4
@@ -75,5 +76,6 @@ def test_pipeline_deduplicates_and_excludes_invalid_severity(tmp_path: Path):
     assert quality["retainedRows"] == 4
     assert quality["duplicateRows"] == 1
     assert quality["invalidSeverityRows"] == 1
+    assert quality["invalidTimestampRows"] == 0
     assert any(row["weather"] == "Other/Unknown" for row in dashboard["weatherSeverity"])
 
