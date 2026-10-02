@@ -60,6 +60,7 @@ The preparation pipeline writes a compressed dashboard bundle and a local data-q
 - These are historical accident-record counts and severity composition, not the probability of an accident for a trip. There is no denominator for trips or miles driven.
 - Severity 1–4 describes traffic impact in the source; Severity 3–4 is the dashboard’s “high severity” group. It does not mean injury or fatality severity.
 - The sample does not include vehicle make or model, so the dashboard cannot compare car models.
+- The city table is intentionally bounded to the 2,000 state-city pairs with the highest sample counts (minimum 30 source records); its totals are not a complete national city total.
 - Weather, visibility, and location fields can be missing or unevenly covered. Unknown values are retained as an explicit category where applicable.
 - Descriptive associations do not establish cause, and are not safety, routing, underwriting, or claims recommendations.
 - This dataset is licensed for non-commercial research/academic use under CC BY-NC-SA 4.0; check the license before reusing the data or derived materials for other purposes.

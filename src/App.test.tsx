@@ -24,8 +24,14 @@ const sample: DashboardData = {
     { state: "CA", year: 2022, month: "2022-01", weather: "Rain", visibilityBand: "Low (1–3 mi)", timeOfDay: "Morning (06:00–11:59)", severity: 3, count: 2 },
     { state: "NY", year: 2023, month: "2023-03", weather: "Clear/Fair", visibilityBand: "Good (≥10 mi)", timeOfDay: "Evening (18:00–23:59)", severity: 4, count: 1 },
   ],
-  weatherSeverity: [],
-  visibilitySeverity: [],
+  weatherSeverity: [
+    { state: "CA", year: 2022, weather: "Rain", visibilityBand: "Low (1–3 mi)", timeOfDay: "Morning (06:00–11:59)", severity: 2, count: 2 },
+    { state: "CA", year: 2022, weather: "Rain", visibilityBand: "Low (1–3 mi)", timeOfDay: "Morning (06:00–11:59)", severity: 3, count: 2 },
+  ],
+  visibilitySeverity: [
+    { state: "CA", year: 2022, weather: "Rain", visibilityBand: "Low (1–3 mi)", timeOfDay: "Morning (06:00–11:59)", severity: 2, count: 2 },
+    { state: "CA", year: 2022, weather: "Rain", visibilityBand: "Low (1–3 mi)", timeOfDay: "Morning (06:00–11:59)", severity: 3, count: 2 },
+  ],
   hourWeekday: [],
   states: [],
   cities: [],
@@ -68,5 +74,20 @@ describe("dashboard application", () => {
     render(<App initialData={{ ...sample, weatherSeverity: [], visibilitySeverity: [], hourWeekday: [] }} />);
     fireEvent.click(screen.getByRole("button", { name: "Conditions" }));
     expect(screen.getAllByText(/change the filters to compare/i).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("provides a data table for each Recharts visualization", () => {
+    window.history.replaceState(null, "", "/");
+    render(<App initialData={sample} />);
+    expect(screen.getAllByText("View data table")).toHaveLength(2);
+    for (const summary of screen.getAllByText("View data table")) fireEvent.click(summary);
+    expect(screen.getByRole("table", { name: "Monthly accident counts" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Accidents by severity level" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Conditions" }));
+    expect(screen.getAllByText("View data table")).toHaveLength(2);
+    for (const summary of screen.getAllByText("View data table")) fireEvent.click(summary);
+    expect(screen.getByRole("table", { name: "Accident records by weather and severity" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Accident records by visibility and severity" })).toBeInTheDocument();
   });
 });

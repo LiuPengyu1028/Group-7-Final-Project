@@ -194,9 +194,13 @@ def prepare_data(input_path: Path, output_dir: Path) -> None:
         ["state", "year", "weather", "visibilityBand", "timeOfDay", "weekday", "hour", "severity"],
     )
     states = _records(data, [*dimensions])
-    city_dimensions = [column for column in dimensions if column != "state"]
-    city_groups = data.groupby([*city_dimensions, "state", "city"], dropna=False, observed=True).size().rename("count").reset_index()
-    cities = city_groups.loc[city_groups["count"] >= 30].sort_values("count", ascending=False).head(2000)
+    city_totals = data.groupby(["state", "city"], dropna=False, observed=True).size().rename("count").reset_index()
+    top_city_pairs = city_totals.loc[city_totals["count"] >= 30].nlargest(2000, "count")
+    selected_city_pairs = set(zip(top_city_pairs["state"], top_city_pairs["city"]))
+    selected_city_rows = data.loc[
+        [(state, city) in selected_city_pairs for state, city in zip(data["state"], data["city"])]
+    ]
+    cities = _records(selected_city_rows, [*dimensions, "city"])
 
     dashboard = {
         "metadata": {
@@ -213,7 +217,7 @@ def prepare_data(input_path: Path, output_dir: Path) -> None:
         "visibilitySeverity": visibility_severity,
         "hourWeekday": hour_weekday,
         "states": states,
-        "cities": cities.to_dict(orient="records"),
+        "cities": cities,
     }
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)

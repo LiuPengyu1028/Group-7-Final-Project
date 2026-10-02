@@ -26,7 +26,9 @@ export function StateRiskTable({ rows, filters, title = "Recorded accidents by s
   return (
     <article className="chart-card chart-card--wide">
       <div className="chart-card__header"><div><p className="eyebrow">Geographic comparison</p><h3>{title}</h3></div><span className="chart-card__index">06</span></div>
-      <p className="chart-card__summary">Counts refer to records in this dataset. Small city groups are omitted.</p>
+      <p className="chart-card__summary">{includeCity
+        ? "City view covers up to 2,000 state-city pairs with at least 30 records overall; selected filters are applied within those places."
+        : "Counts refer to records in this dataset."}</p>
       <p className="chart-card__filters">{selectedFilterText(filters)}</p>
       {grouped.length ? <div className="table-wrap"><table>
         <thead><tr><th scope="col">{includeCity ? "Place" : "State"}</th><th scope="col"><button type="button" className="table-sort" onClick={() => setSortBy("count")}>Recorded accidents ↕</button></th><th scope="col"><button type="button" className="table-sort" onClick={() => setSortBy("share")}>Severity 3–4 share ↕</button></th></tr></thead>

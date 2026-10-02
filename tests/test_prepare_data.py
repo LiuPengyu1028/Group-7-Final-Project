@@ -1,5 +1,6 @@
 import json
 import gzip
+from itertools import islice, product
 from pathlib import Path
 
 import pandas as pd
@@ -78,4 +79,36 @@ def test_pipeline_deduplicates_and_excludes_invalid_severity(tmp_path: Path):
     assert quality["invalidSeverityRows"] == 1
     assert quality["invalidTimestampRows"] == 0
     assert any(row["weather"] == "Other/Unknown" for row in dashboard["weatherSeverity"])
+
+
+def test_city_limit_keeps_all_condition_groups_for_each_selected_city(tmp_path: Path):
+    combinations = islice(
+        product(
+            range(2016, 2024),
+            ["Clear", "Overcast", "Rain", "Snow", "Fog", "Wind", "Unknown"],
+            [0, 1, 3, 10, None],
+            [0, 8, 13, 20],
+            [1, 2, 3, 4],
+        ),
+        2001,
+    )
+    hours = []
+    for index, (year, weather, visibility, hour, severity) in enumerate(combinations):
+        day = index % 28 + 1
+        hours.append({
+            "ID": f"row-{index}",
+            "Severity": severity,
+            "Start_Time": f"{year}-01-{day:02d} {hour:02d}:00:00",
+            "State": "CA",
+            "City": "Test City",
+            "Weather_Condition": weather,
+            "Visibility(mi)": visibility,
+        })
+    source = tmp_path / "city-combinations.csv"
+    pd.DataFrame(hours).to_csv(source, index=False)
+
+    prepare_data(source, tmp_path / "output")
+
+    dashboard = json.loads(gzip.decompress((tmp_path / "output" / "dashboard-data.bin").read_bytes()).decode("utf-8"))
+    assert sum(row["count"] for row in dashboard["cities"]) == 2001
 

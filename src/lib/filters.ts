@@ -48,7 +48,7 @@ const SEVERITY_VALUES = new Set(["1", "2", "3", "4"]);
 function validValue(key: keyof DashboardFilters, value: string): boolean {
   if (value === "all") return true;
   switch (key) {
-    case "state": return /^[A-Z]{2}$/.test(value);
+    case "state": return value === "Unknown" || /^[A-Z]{2}$/.test(value);
     case "year": return /^20\d{2}$/.test(value);
     case "weather": return WEATHER_VALUES.has(value);
     case "visibility": return VISIBILITY_VALUES.has(value);

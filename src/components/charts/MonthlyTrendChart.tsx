@@ -3,6 +3,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import type { AggregateRow } from "../../data/dashboard-data";
 import type { DashboardFilters } from "../../lib/filters";
 import { EmptyState } from "../EmptyState";
+import { ChartDataTable } from "./ChartDataTable";
 import { chartRows, formatMonth, selectedFilterText } from "./chart-utils";
 
 type Props = { rows: AggregateRow[]; filters: DashboardFilters };
@@ -25,7 +26,7 @@ export function MonthlyTrendChart({ rows, filters }: Props) {
       <div className="chart-card__header"><div><p className="eyebrow">Across the calendar</p><h3>Accidents by month</h3></div><span className="chart-card__index">01</span></div>
       <p className="chart-card__summary">Recorded accidents and Severity 3–4 counts in each month.</p>
       <p className="chart-card__filters">{selectedFilterText(filters)}</p>
-      {points.length ? <div className="chart-stage"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+      {points.length ? <><div className="chart-stage"><ResponsiveContainer width="100%" height="100%"><LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
         <CartesianGrid stroke="#e4e9e8" vertical={false} />
         <XAxis dataKey="month" tickFormatter={formatMonth} minTickGap={24} tickLine={false} axisLine={false} />
         <YAxis tickLine={false} axisLine={false} width={45} />
@@ -33,7 +34,7 @@ export function MonthlyTrendChart({ rows, filters }: Props) {
         <Legend />
         <Line type="monotone" dataKey="accidents" name="All recorded accidents" stroke="#335d58" strokeWidth={2.5} dot={false} />
         <Line type="monotone" dataKey="highSeverity" name="Severity 3–4" stroke="#ba7041" strokeWidth={2.5} dot={false} />
-      </LineChart></ResponsiveContainer></div> : <EmptyState>Prepare the Kaggle sample to see monthly results.</EmptyState>}
+      </LineChart></ResponsiveContainer></div><ChartDataTable caption="Monthly accident counts" columns={[{ key: "month", label: "Month" }, { key: "accidents", label: "All recorded accidents" }, { key: "highSeverity", label: "Severity 3–4" }]} rows={points.map((point) => ({ ...point, month: formatMonth(point.month) }))} /></> : <EmptyState>Prepare the Kaggle sample to see monthly results.</EmptyState>}
     </article>
   );
 }

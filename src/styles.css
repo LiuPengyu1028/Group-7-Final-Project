@@ -105,6 +105,12 @@ a { color: inherit; }
 .method-card--caution { background: #f8f2e9; border-color: #e9dfcf; }
 .method-card--caution .eyebrow { color: #997151; }
 .table-wrap { overflow-x: auto; }
+.chart-data-table { margin-top: 4px; color: #65736d; font-size: 10px; }
+.chart-data-table summary { width: fit-content; color: #53756c; cursor: pointer; font-size: 10px; }
+.chart-data-table summary:focus-visible { outline: 2px solid #335d58; outline-offset: 3px; }
+.chart-data-table .table-wrap { max-height: 260px; margin-top: 8px; border: 1px solid #e8ede9; border-radius: 5px; }
+.chart-data-table table { min-width: 420px; }
+.chart-data-table caption { padding: 8px; color: #354b44; font-weight: 600; text-align: left; }
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 thead { background: #f5f7f4; color: #77847e; text-align: left; }
 th, td { padding: 10px 11px; border-bottom: 1px solid #e8ede9; }
