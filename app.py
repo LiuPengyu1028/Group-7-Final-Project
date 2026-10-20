@@ -28,7 +28,7 @@ st.caption(
 # ----------------------------
 # Load processed data
 # ----------------------------
-@st.cache_data
+@st.cache_resource
 def load_data(data_dir: str) -> pd.DataFrame:
     folder = Path(data_dir)
     files = sorted(folder.glob("part-*.parquet"))
@@ -113,7 +113,7 @@ selected_cities = st.sidebar.multiselect(
     help="Leave empty to include all cities.",
 )
 
-filtered = df.copy()
+filtered = df
 
 if selected_years:
     filtered = filtered[filtered["Year"].isin(selected_years)]
