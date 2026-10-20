@@ -1,173 +1,161 @@
-
 # California Fleet Safety Dashboard
 
 ## 1. Project Overview
 
-This project develops an interactive dashboard for fleet safety analysis using the US Accidents dataset (2016–2023).
+This project develops an interactive fleet safety dashboard using the US Accidents dataset (2016–2023), with an initial focus on California.
 
-The first version focuses on California and is designed for fleet managers who want to explore recorded accident patterns by time, weather condition, severity level, and location.
+The dashboard is designed for fleet managers and fleet safety teams to explore historical accident patterns by time, weather condition, severity level, and geographic location.
+
+**Live Dashboard:** https://california-fleet-safety-g7.streamlit.app/
 
 ## 2. Target Audience
 
 **Primary audience:** Fleet managers and fleet safety teams.
 
-The dashboard helps users explore historical accident records and identify patterns that may deserve further safety investigation.
+The dashboard supports exploratory analysis of recorded accidents and helps identify patterns that may warrant further safety investigation. It does not estimate the probability of an accident for an individual driver or vehicle.
 
 ## 3. Dataset
 
-Source: [US Accidents (2016–2023) on Kaggle](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents)
+**Source:** [US Accidents (2016–2023) on Kaggle](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents)
 
-The original dataset contains accident records collected across the United States. This project processes the data to retain California records and selected fields relevant to fleet safety analysis.
+The project focuses on California accident records and selected fields relevant to fleet safety analysis.
 
-The original CSV and processed data files are not included in this repository because of their large size.
+- The original CSV dataset is not included in this GitHub repository.
+- Processed California accident data is included as Parquet files in `data/processed/california_accidents/`.
+- The dashboard reads the processed Parquet files directly, so downloading the original CSV is not required for normal operation.
 
 ## 4. Data Processing
 
 The `data_processing.py` script:
 
-- Reads the original CSV in chunks to reduce memory pressure.
-- Selects records for California.
-- Retains selected accident, time, location, weather, and road-feature columns.
-- Creates time-based features, including year, month, hour, and day of week.
-- Excludes records with missing timestamps or coordinates from the processed output.
-- Saves the processed data as Parquet files.
+- Reads the original CSV in chunks.
+- Selects California accident records.
+- Retains selected accident, time, location, weather, and road-feature variables.
+- Creates additional time-based features.
+- Saves the processed records as Parquet files.
+
+The script uses the following paths relative to the project root:
+
+- Input: `data/raw/US_Accidents_March23.csv`
+- Output: `data/processed/california_accidents/`
+
+The original dataset is only required when regenerating the processed data.
 
 ## 5. Dashboard Features
 
 The Streamlit dashboard (`app.py`) includes:
 
-- Key metrics for filtered accident records.
+- Key metrics based on filtered accident records.
 - Interactive filters for year, weather condition, severity, and city.
 - Monthly accident-record trends.
-- Accident-record counts by severity.
-- Common recorded weather conditions.
-- Accident patterns by hour and day of week.
-- Weather-condition and severity comparisons.
-- An interactive map of sampled accident locations.
-- Automatically updated fleet safety insights.
+- Accident counts by severity level.
+- Recorded weather-condition distributions.
+- Accident patterns by hour and weekday.
+- Comparisons of weather conditions and severity.
+- An interactive map of accident locations.
+- Fleet safety insights based on descriptive statistics.
 
-## 6. Technology Stack
+The map displays up to 5,000 sampled accident records for performance, while dashboard summary metrics use the full filtered dataset.
+
+## 6. AI Features
+
+The dashboard provides two AI-assisted features powered by OpenRouter.
+
+### AI Report
+
+- Generates a written report using aggregated statistics from the current dashboard filters.
+- Summarizes descriptive accident patterns relevant to fleet safety analysis.
+
+### AI Q&A
+
+- Allows users to ask questions about the filtered accident data.
+- Generates explanations using statistical context prepared by the application.
+- Does not independently query the full underlying dataset.
+
+AI-generated content may contain errors. It is intended to support exploratory analysis and should not be interpreted as verified safety advice or evidence of causation.
+
+## 7. Technology Stack
 
 - Python
-- pandas
 - Streamlit
+- pandas
 - Plotly
 - PyDeck
-- PyArrow
-- Parquet
+- PyArrow and Parquet
+- OpenRouter API
+- OpenAI-compatible Python client
 
-## 7. Local Setup
+## 8. Local Setup
 
-### Prerequisites
+### Step 1: Clone the repository
 
-Install Python and Git. Download the original dataset from the Kaggle source above.
+```powershell
+git clone https://github.com/LiuPengyu1028/Group-7-Final-Project.git
+cd Group-7-Final-Project
+```
 
-### Step 1: Create and activate a virtual environment
-
-From the project directory, run:
+### Step 2: Create a virtual environment
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Step 2: Install dependencies
+### Step 3: Install dependencies
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-### Step 3: Place the source data
+### Step 4: Launch the dashboard
 
-Place the downloaded CSV at the location expected by `data_processing.py`.
-
-Check the source-data path in that script and update it if necessary.
-
-### Step 4: Process the dataset
-
-```powershell
-python data_processing.py
-```
-
-### Step 5: Launch the dashboard
+The repository already contains the processed Parquet files required by the dashboard.
 
 ```powershell
 python -m streamlit run app.py
 ```
 
-Streamlit will display a local URL in the terminal, usually `http://localhost:8501`.
+Open the local URL displayed by Streamlit, usually `http://localhost:8501`.
 
-## 8. Important Limitations
+The non-AI dashboard features do not require an OpenRouter API key.
 
-- The dataset contains recorded accidents, not every trip or vehicle movement.
-- Accident-record counts should not be interpreted as accident rates or the probability of a crash per trip.
-- The dataset's `Severity` field is a severity score and should not be treated as a direct count of injuries or fatalities.
-- Weather associations are descriptive and do not establish causation.
-- The map displays a sample of records for performance reasons.
-- Results depend on the source dataset's coverage and data quality.
+## 9. OpenRouter Configuration
 
-## 9. Project Structure
+AI Report and AI Q&A require an OpenRouter API key.
 
-```text
-us-accidents-dashboard/
-├── app.py
-├── data_processing.py
-├── requirements.txt
-├── README.md
-├── .gitignore
-├── data/
-│   └── processed/
-└── outputs/
-```
-## 10. AI Features
+### Local development
 
-The dashboard includes two AI-assisted features powered by OpenRouter.
-
-### AI Report
-
-- Generates a written summary based on the currently filtered accident records.
-- Highlights descriptive patterns relevant to fleet safety management.
-- Uses aggregated dashboard statistics as context.
-
-### AI Q&A
-
-- Allows users to ask questions about the filtered accident data.
-- Provides explanations based on the supplied statistical context.
-- Does not independently access the full accident dataset.
-
-AI-generated responses are intended to support exploratory analysis. They may contain errors and should not be treated as verified safety recommendations or causal conclusions.
-
-## 11. OpenRouter Configuration
-
-AI features require an OpenRouter API key.
-
-Create a file named `.env` in the project root directory and add:
+Create a `.env` file in the project root:
 
 ```text
 OPENROUTER_API_KEY=your_api_key_here
 ```
 
-Replace `your_api_key_here` with your own OpenRouter API key.
+The application loads this file and reads the key from the `OPENROUTER_API_KEY` environment variable.
 
-The `.env` file is excluded from Git through `.gitignore`.
+### Cloud deployment
 
-**Never commit or share your API key.**
+Configure `OPENROUTER_API_KEY` securely in the deployment environment. For Streamlit Community Cloud, use the application's Secrets configuration and verify that the key is accessible to the AI client as an environment variable.
 
-The dashboard's non-AI visualizations can be used without configuring OpenRouter.
+**Never commit API keys, `.env` files, or other credentials to GitHub.**
 
-## 12. Data Preparation for Team Members
+## 10. Regenerating the Processed Dataset (Optional)
 
-1. Download the US Accidents dataset from the Kaggle link in Section 3.
-2. Create the directory `data/raw/` in the project root.
-3. Place `US_Accidents_March23.csv` inside `data/raw/`.
-4. Install dependencies using `pip install -r requirements.txt`.
-5. Run `python data_processing.py` from the project root.
-6. The script generates Parquet files in `data/processed/california_accidents/`.
-7. Run `python -m streamlit run app.py` to start the dashboard.
+To reproduce the data-processing step:
 
-The original CSV and generated Parquet files are excluded from GitHub because of their size.
+1. Download the original US Accidents dataset from Kaggle.
+2. Place `US_Accidents_March23.csv` in `data/raw/`.
+3. Run the processing script:
 
-## 13. Updated Project Structure
+```powershell
+python data_processing.py
+```
+
+The script writes processed Parquet files to `data/processed/california_accidents/`.
+
+This step is optional for users who only want to run the existing dashboard.
+
+## 11. Project Structure
 
 ```text
 Group-7-Final-Project/
@@ -176,7 +164,6 @@ Group-7-Final-Project/
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
-├── .env                  # Local only; not committed
 ├── ai/
 │   ├── client.py
 │   ├── context.py
@@ -185,10 +172,20 @@ Group-7-Final-Project/
 │   └── validation.py
 └── data/
     ├── raw/
-    │   └── US_Accidents_March23.csv
+    │   └── US_Accidents_March23.csv   # Not committed
     └── processed/
         └── california_accidents/
-            └── part-*.parquet
+            └── part-*.parquet          # Included in GitHub
 ```
 
-**Note:** The data files shown above are created or downloaded locally and are not included in the GitHub repository.
+The `.env` file and virtual environment are local development files and are not committed.
+
+## 12. Limitations and Responsible Use
+
+- The dataset contains recorded accidents rather than all vehicle trips or movements.
+- Accident counts must not be interpreted as accident rates or individual crash probabilities.
+- The recorded `Severity` field is not a direct count of injuries or fatalities.
+- Relationships between weather conditions and accidents are descriptive and do not establish causation.
+- The map displays sampled records for performance.
+- Results depend on the source dataset's coverage, completeness, and data quality.
+- AI-generated interpretations require independent verification before operational use.
