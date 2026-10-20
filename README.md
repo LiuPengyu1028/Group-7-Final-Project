@@ -1,70 +1,194 @@
-# Roadwise — US Accident Conditions
 
-Course-project interactive analytics dashboard for exploring recorded US traffic accidents alongside weather, visibility, time, and geography.
+# California Fleet Safety Dashboard
 
-## Problem
+## 1. Project Overview
 
-Drivers, fleet operators, and insurance analysts need a clear way to explore how recorded accident severity varies across observed conditions. Roadwise supports historical exploration and classroom discussion; it is not a live route planner, driver alert, insurance-pricing model, or prediction tool.
+This project develops an interactive dashboard for fleet safety analysis using the US Accidents dataset (2016–2023).
 
-## Dashboard features
+The first version focuses on California and is designed for fleet managers who want to explore recorded accident patterns by time, weather condition, severity level, and location.
 
-- Overview of recorded accidents, Severity 3–4 counts/share, and states represented.
-- Shared filters for year, state, grouped weather, visibility band, time of day, and severity. Filters are encoded in the URL so a selection can be refreshed or shared.
-- Monthly trend and severity mix, grouped severity charts by weather and visibility, a weekday/hour heatmap, and state/city tables.
-- Methodology view with dataset attribution, quality summary, transformations, definitions, and limitations.
-- Responsive layouts and text/table alternatives for chart interpretation.
+## 2. Target Audience
 
-## Data source
+**Primary audience:** Fleet managers and fleet safety teams.
 
-The project uses the 500,000-row sample from [US Accidents (2016–2023) on Kaggle](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents), authored by Sobhan Moosavi. Dataset terms: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). The dataset page also lists the two source research papers; cite the dataset and those papers in a formal course presentation.
+The dashboard helps users explore historical accident records and identify patterns that may deserve further safety investigation.
 
-Download the sample CSV from the dataset page and save it as:
+## 3. Dataset
 
-```text
-data/raw/US_Accidents_March23_sampled_500k.csv
-```
+Source: [US Accidents (2016–2023) on Kaggle](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents)
 
-The raw CSV is intentionally ignored by Git. The small, pre-aggregated dashboard asset in `public/data/` is included so the course demo works immediately after checkout. It contains aggregates generated from the sample, not row-level source records, and is shared under the dataset's CC BY-NC-SA 4.0 terms.
+The original dataset contains accident records collected across the United States. This project processes the data to retain California records and selected fields relevant to fleet safety analysis.
 
-## Run locally
+The original CSV and processed data files are not included in this repository because of their large size.
 
-Requirements: Python 3.11 or 3.12, Node.js 22 or newer, and pnpm.
+## 4. Data Processing
+
+The `data_processing.py` script:
+
+- Reads the original CSV in chunks to reduce memory pressure.
+- Selects records for California.
+- Retains selected accident, time, location, weather, and road-feature columns.
+- Creates time-based features, including year, month, hour, and day of week.
+- Excludes records with missing timestamps or coordinates from the processed output.
+- Saves the processed data as Parquet files.
+
+## 5. Dashboard Features
+
+The Streamlit dashboard (`app.py`) includes:
+
+- Key metrics for filtered accident records.
+- Interactive filters for year, weather condition, severity, and city.
+- Monthly accident-record trends.
+- Accident-record counts by severity.
+- Common recorded weather conditions.
+- Accident patterns by hour and day of week.
+- Weather-condition and severity comparisons.
+- An interactive map of sampled accident locations.
+- Automatically updated fleet safety insights.
+
+## 6. Technology Stack
+
+- Python
+- pandas
+- Streamlit
+- Plotly
+- PyDeck
+- PyArrow
+- Parquet
+
+## 7. Local Setup
+
+### Prerequisites
+
+Install Python and Git. Download the original dataset from the Kaggle source above.
+
+### Step 1: Create and activate a virtual environment
+
+From the project directory, run:
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
-pnpm install --frozen-lockfile
-pnpm run dev
+.\.venv\Scripts\Activate.ps1
 ```
 
-Open the local URL printed by Vite. To regenerate the dashboard aggregates after downloading the sample:
+### Step 2: Install dependencies
 
 ```powershell
-python scripts/prepare_data.py --input data/raw/US_Accidents_March23_sampled_500k.csv --output data/processed
+pip install -r requirements.txt
 ```
 
-To verify the project and create a production build:
+### Step 3: Place the source data
+
+Place the downloaded CSV at the location expected by `data_processing.py`.
+
+Check the source-data path in that script and update it if necessary.
+
+### Step 4: Process the dataset
 
 ```powershell
-python -m pytest -v
-pnpm run test -- --run
-pnpm run build
-pnpm run preview
+python data_processing.py
 ```
 
-The preparation pipeline writes a compressed dashboard bundle and a local data-quality report; only the compressed dashboard bundle and compact quality summary are copied to `public/data/`. Raw and processed source-level files must not be committed.
+### Step 5: Launch the dashboard
 
-## Limitations
+```powershell
+python -m streamlit run app.py
+```
 
-- These are historical accident-record counts and severity composition, not the probability of an accident for a trip. There is no denominator for trips or miles driven.
-- Severity 1–4 describes traffic impact in the source; Severity 3–4 is the dashboard’s “high severity” group. It does not mean injury or fatality severity.
-- The sample does not include vehicle make or model, so the dashboard cannot compare car models.
-- The city table is intentionally bounded to the 2,000 state-city pairs with the highest sample counts (minimum 30 source records); its totals are not a complete national city total.
-- Weather, visibility, and location fields can be missing or unevenly covered. Unknown values are retained as an explicit category where applicable.
-- Descriptive associations do not establish cause, and are not safety, routing, underwriting, or claims recommendations.
-- This dataset is licensed for non-commercial research/academic use under CC BY-NC-SA 4.0; check the license before reusing the data or derived materials for other purposes.
+Streamlit will display a local URL in the terminal, usually `http://localhost:8501`.
 
-## Course demo
+## 8. Important Limitations
 
-See [docs/demo-script.md](docs/demo-script.md) for a five-minute presentation outline. To publish, push the `main` branch and configure the repository's Pages source as **GitHub Actions**; the workflow builds and deploys `dist/` automatically.
+- The dataset contains recorded accidents, not every trip or vehicle movement.
+- Accident-record counts should not be interpreted as accident rates or the probability of a crash per trip.
+- The dataset's `Severity` field is a severity score and should not be treated as a direct count of injuries or fatalities.
+- Weather associations are descriptive and do not establish causation.
+- The map displays a sample of records for performance reasons.
+- Results depend on the source dataset's coverage and data quality.
+
+## 9. Project Structure
+
+```text
+us-accidents-dashboard/
+├── app.py
+├── data_processing.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── data/
+│   └── processed/
+└── outputs/
+```
+## 10. AI Features
+
+The dashboard includes two AI-assisted features powered by OpenRouter.
+
+### AI Report
+
+- Generates a written summary based on the currently filtered accident records.
+- Highlights descriptive patterns relevant to fleet safety management.
+- Uses aggregated dashboard statistics as context.
+
+### AI Q&A
+
+- Allows users to ask questions about the filtered accident data.
+- Provides explanations based on the supplied statistical context.
+- Does not independently access the full accident dataset.
+
+AI-generated responses are intended to support exploratory analysis. They may contain errors and should not be treated as verified safety recommendations or causal conclusions.
+
+## 11. OpenRouter Configuration
+
+AI features require an OpenRouter API key.
+
+Create a file named `.env` in the project root directory and add:
+
+```text
+OPENROUTER_API_KEY=your_api_key_here
+```
+
+Replace `your_api_key_here` with your own OpenRouter API key.
+
+The `.env` file is excluded from Git through `.gitignore`.
+
+**Never commit or share your API key.**
+
+The dashboard's non-AI visualizations can be used without configuring OpenRouter.
+
+## 12. Data Preparation for Team Members
+
+1. Download the US Accidents dataset from the Kaggle link in Section 3.
+2. Create the directory `data/raw/` in the project root.
+3. Place `US_Accidents_March23.csv` inside `data/raw/`.
+4. Install dependencies using `pip install -r requirements.txt`.
+5. Run `python data_processing.py` from the project root.
+6. The script generates Parquet files in `data/processed/california_accidents/`.
+7. Run `python -m streamlit run app.py` to start the dashboard.
+
+The original CSV and generated Parquet files are excluded from GitHub because of their size.
+
+## 13. Updated Project Structure
+
+```text
+Group-7-Final-Project/
+├── app.py
+├── data_processing.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── .env                  # Local only; not committed
+├── ai/
+│   ├── client.py
+│   ├── context.py
+│   ├── qa.py
+│   ├── report.py
+│   └── validation.py
+└── data/
+    ├── raw/
+    │   └── US_Accidents_March23.csv
+    └── processed/
+        └── california_accidents/
+            └── part-*.parquet
+```
+
+**Note:** The data files shown above are created or downloaded locally and are not included in the GitHub repository.

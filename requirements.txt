@@ -1,0 +1,7 @@
+﻿pandas
+streamlit
+plotly
+pydeck
+pyarrow
+openai==3.31.0
+python-dotenv==1.2.4
