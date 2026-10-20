@@ -1,4 +1,5 @@
 
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -8,6 +9,7 @@ import streamlit as st
 from ai.context import build_ai_context
 from ai.report import generate_ai_report
 from ai.qa import answer_ai_question, format_qa_answer
+logger = logging.getLogger(__name__)
 # ----------------------------
 # Page configuration
 # ----------------------------
@@ -169,7 +171,7 @@ if filtered.empty:
     st.stop()
 
 # ----------------------------
-# AI Context Builder - Integration Test
+# AI Context Preparation
 # ----------------------------
 
 current_filters = {
@@ -619,9 +621,9 @@ with report_tab:
                 "Please check the API connection or report validation."
             )
 
-            print(
-                f"[AI REPORT ERROR] {type(error).__name__}: {str(error)[:200]}",
-                flush=True,
+            logger.error(
+                "AI report generation failed: %s",
+                type(error).__name__,
             )
 
     saved_report = st.session_state.get("ai_report")
@@ -690,9 +692,9 @@ with qa_tab:
                 st.error(
                     "AI Q&A failed. Please check the API connection."
                 )
-                print(
-                    f"[AI QA ERROR] {type(error).__name__}",
-                    flush=True,
+                logger.error(
+                    "AI Q&A failed: %s",
+                    type(error).__name__,
                 )
 
     saved_answer = st.session_state.get("ai_qa_answer")
